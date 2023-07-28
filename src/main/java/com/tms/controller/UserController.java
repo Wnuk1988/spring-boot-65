@@ -2,18 +2,14 @@ package com.tms.controller;
 
 import com.tms.domain.UserInfo;
 import com.tms.service.UserService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/user")
 public class UserController {
     private final UserService userService;
 
@@ -21,38 +17,58 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/")
-    public String getUsers(Model model) {
+    @GetMapping
+    public ResponseEntity<List<UserInfo>> getUsers() {
         List<UserInfo> users = userService.getUsers();
-        model.addAttribute("users", users);
-        model.addAttribute("userInfo", new UserInfo());
-        return "users";
+
+        if (users.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        }
     }
 
     @GetMapping("/{id}")
-    public String getUser(Model model, @PathVariable Integer id) {
+    public ResponseEntity<UserInfo> getUser(@PathVariable Integer id) {
         UserInfo userInfo = userService.getUser(id);
-        model.addAttribute("userInfo", userInfo);
-        return "edit";
-    }
-
-    @PostMapping("/")
-    public RedirectView createUser(RedirectAttributes redirectAttributes, @ModelAttribute UserInfo userInfo) {
-        userService.createUser(userInfo);
-        String message = "Create user " + userInfo.getFirstName() + " " + userInfo.getLastName();
-        redirectAttributes.addFlashAttribute("userMessage", message);
-        return new RedirectView("/");
-    }
-
-    @PostMapping("/{id}")
-    public RedirectView updateUser(RedirectAttributes redirectAttributes, @PathVariable Integer id, @ModelAttribute UserInfo userInfo) {
-        if (userInfo.getWillDelete()) {
-            userService.deleteUserById(id);
+        if (userInfo != null) {
+            return new ResponseEntity<>(userInfo, HttpStatus.OK);
         } else {
-            userService.updateUser(id, userInfo);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        String message = (userInfo.getWillDelete() ? "Delete" : "Update") + " user" + userInfo.getFirstName();
-        redirectAttributes.addFlashAttribute("userMessage", message);
-        return new RedirectView("/");
+    }
+
+    @PostMapping
+    public ResponseEntity<HttpStatus> createUser(@RequestBody UserInfo userInfo) {
+        UserInfo userInfoSaved = userService.createUser(userInfo);
+        UserInfo userInfoResult = userService.getUser(userInfoSaved.getId());
+        if (userInfoResult != null) {
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<HttpStatus> updateUser(@RequestBody UserInfo userInfo) {
+        userService.updateUser(userInfo);
+        UserInfo userInfoUpdated = userService.getUser(userInfo.getId());
+        if (userInfo.equals(userInfoUpdated)) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<HttpStatus> deleteUser(@PathVariable Integer id) {
+        UserInfo userInfoUpdated = userService.getUser(id);
+        userService.deleteUserById(id);
+        UserInfo userInfo = userService.getUser(id);
+        if (userInfo == null && userInfoUpdated != null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
     }
 }

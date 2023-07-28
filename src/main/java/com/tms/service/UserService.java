@@ -9,7 +9,7 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private Integer counter = 0;
+    private Integer counter = 3;
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -24,19 +24,21 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public void createUser(UserInfo userInfo) {
+    public UserInfo createUser(UserInfo userInfo) {
         userInfo.setId(++counter);
+        userInfo.setCreatedAt(LocalDateTime.now());
+        userInfo.setUpdatedAt(LocalDateTime.now());
         userRepository.save(userInfo);
+        return userInfo;
     }
 
-    public void updateUser(Integer id, UserInfo userInfo) {
-        UserInfo fromDb = getUser(id);
+    public void updateUser(UserInfo userInfo) {
+        UserInfo fromDb = getUser(userInfo.getId());
         fromDb.setFirstName(userInfo.getFirstName());
         fromDb.setLastName(userInfo.getLastName());
         fromDb.setRole(userInfo.getRole());
         fromDb.setUpdatedAt(LocalDateTime.now());
         fromDb.setCreatedAt(userInfo.getCreatedAt());
-        fromDb.setWillDelete(false);
         userRepository.save(fromDb);
     }
 
