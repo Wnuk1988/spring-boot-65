@@ -35,7 +35,7 @@ public class UserService {
         userRepository.updateUser(userInfo);
     }
 
-    public void deleteUserById(Integer id) {
-        userRepository.delete(id);
+    public void deleteUserById(UserInfo userInfo) {
+        userRepository.delete(userInfo);
     }
 }

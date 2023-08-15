@@ -2,7 +2,6 @@ package com.tms.controller;
 
 import com.tms.domain.UserInfo;
 import com.tms.service.UserService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -76,7 +75,7 @@ public class UserController {
     @DeleteMapping("{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable Integer id) {
         UserInfo userInfoUpdated = userService.getUser(id);
-        userService.deleteUserById(id);
+        userService.deleteUserById(userInfoUpdated);
         UserInfo userInfo = userService.getUser(id);
         if (userInfo == null && userInfoUpdated != null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
