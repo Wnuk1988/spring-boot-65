@@ -2,6 +2,12 @@ package com.tms.controller;
 
 import com.tms.domain.UserInfo;
 import com.tms.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserInfo> getUser(@PathVariable Integer id) {
+    public ResponseEntity<UserInfo> getUser(@PathVariable @Parameter(description = "Это id пользователя") Integer id) {
         UserInfo userInfo = userService.getUser(id);
         if (userInfo != null) {
             return new ResponseEntity<>(userInfo, HttpStatus.OK);
@@ -38,6 +44,12 @@ public class UserController {
         }
     }
 
+    //@Hidden - скрывает метод, но не убирает!
+    @Operation(summary = "Добовляем пользователя", description = "Мы добовляем пользователя, нужно на вход передать json UserInfo.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Мы успешно создали пользователя."),
+            @ApiResponse(responseCode = "400", description = "Ошибка на стороне клиента."),
+    })
     @PostMapping
     public ResponseEntity<HttpStatus> createUser(@RequestBody UserInfo userInfo) {
         UserInfo userInfoSaved = userService.createUser(userInfo);
@@ -49,6 +61,7 @@ public class UserController {
         }
     }
 
+    @Tag(name = "Test tag", description = "This is our test tag description!")
     @PutMapping
     public ResponseEntity<HttpStatus> updateUser(@RequestBody UserInfo userInfo) {
         userService.updateUser(userInfo);

@@ -9,7 +9,6 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private Integer counter = 3;
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -25,7 +24,6 @@ public class UserService {
     }
 
     public UserInfo createUser(UserInfo userInfo) {
-        userInfo.setId(++counter);
         userInfo.setCreatedAt(LocalDateTime.now());
         userInfo.setUpdatedAt(LocalDateTime.now());
         userRepository.save(userInfo);
@@ -33,13 +31,8 @@ public class UserService {
     }
 
     public void updateUser(UserInfo userInfo) {
-        UserInfo fromDb = getUser(userInfo.getId());
-        fromDb.setFirstName(userInfo.getFirstName());
-        fromDb.setLastName(userInfo.getLastName());
-        fromDb.setRole(userInfo.getRole());
-        fromDb.setUpdatedAt(LocalDateTime.now());
-        fromDb.setCreatedAt(userInfo.getCreatedAt());
-        userRepository.save(fromDb);
+        userInfo.setUpdatedAt(LocalDateTime.now());
+        userRepository.updateUser(userInfo);
     }
 
     public void deleteUserById(Integer id) {

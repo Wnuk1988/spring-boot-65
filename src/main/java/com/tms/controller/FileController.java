@@ -1,5 +1,6 @@
 package com.tms.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +39,7 @@ public class FileController {
         }
         return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
-
+    @Tag(name = "Test tag", description = "This is our test tag description!")
     @GetMapping("/{filename}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         Path path = ROOT_FILE_PATH.resolve(filename);

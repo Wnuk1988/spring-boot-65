@@ -1,44 +1,51 @@
 package com.tms.repository;
 
 import com.tms.domain.UserInfo;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class UserRepository {
-    private final Map<Integer, UserInfo> users = new HashMap<>();
+    public final EntityManager entityManager;
 
-    {
-        UserInfo userInfo = new UserInfo();
-        userInfo.setId(1);
-        userInfo.setFirstName("Mikhail");
-        userInfo.setLastName("Unuchko");
+    public UserRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
-        UserInfo userInfo1 = new UserInfo();
-        userInfo1.setId(2);
-        userInfo1.setFirstName("Natalia");
-        userInfo1.setLastName("Unuchko");
+    // CRUD  операции
 
-        users.put(1,userInfo);
-        users.put(2,userInfo1);
+    // CREATE
+    public void save(UserInfo userInfo) {
+        entityManager.getTransaction().begin();
+        entityManager.persist(userInfo);
+        entityManager.getTransaction().commit();
+    }
+
+    // DELETE
+    public void delete(int id) {
+        entityManager.getTransaction().begin();
+        entityManager.remove(entityManager.find(UserInfo.class, id));
+        entityManager.getTransaction().commit();
+    }
+
+    //READ
+    public UserInfo findById(int id) {
+        UserInfo userInfo = entityManager.find(UserInfo.class, id);
+        return userInfo;
     }
 
     public List<UserInfo> findAll() {
-        return users.values().stream().toList();
+        Query query = entityManager.createQuery("FROM user_info");
+        return query.getResultList();
     }
 
-    public UserInfo findById(Integer id) {
-        return users.get(id);
-    }
-
-    public void save(UserInfo userInfo) {
-        users.put(userInfo.getId(), userInfo);
-    }
-
-    public void delete(Integer id) {
-        users.remove(id);
+    //UPDATE
+    public void updateUser(UserInfo userInfo) {
+        entityManager.getTransaction().begin();
+        entityManager.merge(userInfo);
+        entityManager.getTransaction().commit();
     }
 }
