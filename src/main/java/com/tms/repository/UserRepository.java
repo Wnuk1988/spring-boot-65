@@ -1,11 +1,17 @@
 package com.tms.repository;
 
 import com.tms.domain.UserInfo;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -20,24 +26,27 @@ public class UserRepository {
 
     //READ
     public UserInfo findById(int id) {
-        int firstElement = 0;
         UserInfo userInfo = null;
         Session session = sessionFactory.openSession();
-        Query<UserInfo> query = session.createQuery("FROM user_info u WHERE u.id =: userId", UserInfo.class);
-        query.setParameter("userId", id);
-        List<UserInfo> resultList = query.getResultList();
-        session.close();
-        if (resultList != null && !resultList.isEmpty()){
-            userInfo = resultList.get(firstElement);
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UserInfo> criteria = cb.createQuery(UserInfo.class);
+        Root<UserInfo> root = criteria.from(UserInfo.class);
+        criteria.select(root).where(cb.equal(root.get("id"),id));
+        List<UserInfo> result = session.createQuery(criteria).getResultList();
+        if (!result.isEmpty()){
+            userInfo = result.get(0);
         }
+        session.close();
         return userInfo;
     }
 
-    //Read HQL
+    // Read
     public List<UserInfo> findAll() {
         Session session = sessionFactory.openSession();
-        Query<UserInfo> query = session.createQuery("from user_info", UserInfo.class);
-        List<UserInfo> resultList = query.getResultList();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<UserInfo> criteria = cb.createQuery(UserInfo.class);
+        criteria.select(criteria.from(UserInfo.class));
+        List<UserInfo> resultList = session.createQuery(criteria).getResultList();
         session.close();
         return resultList;
     }
@@ -52,19 +61,21 @@ public class UserRepository {
         session.close();
     }
 
-    //UPDATE
+    // UPDATE
     public void updateUser(UserInfo userInfo) {
         Session session = sessionFactory.openSession();
-        Query<UserInfo> query = session.createQuery("UPDATE user_info set firstName=:firstName, lastName=:lastName," +
-                "updatedAt=:updatedAt, role=:role WHERE id=:id");
-        query.setParameter("id", userInfo.getId());
-        query.setParameter("firstName", userInfo.getFirstName());
-        query.setParameter("lastName", userInfo.getLastName());
-        query.setParameter("updatedAt", userInfo.getUpdatedAt());
-        query.setParameter("role", userInfo.getRole());
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaUpdate<UserInfo> criteria = cb.createCriteriaUpdate(UserInfo.class);
+        Root<UserInfo> root = criteria.getRoot();
+
+        criteria.set("firstName", userInfo.getFirstName());
+        criteria.set("lastName",userInfo.getLastName());
+        criteria.set("updatedAt", LocalDateTime.now());
+        criteria.set("role", userInfo.getRole());
+        criteria.where(cb.equal(root.get("id"),userInfo.getId()));
 
         session.beginTransaction();
-        query.executeUpdate();
+        session.createMutationQuery(criteria).executeUpdate();
         session.getTransaction().commit();
         session.close();
     }
@@ -72,10 +83,14 @@ public class UserRepository {
     // DELETE объект передаем
     public void delete(UserInfo userInfo) {
         Session session = sessionFactory.openSession();
-        Query<UserInfo> query = session.createQuery("DELETE user_info WHERE id=:id");
-        query.setParameter("id", userInfo.getId());
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaDelete<UserInfo> criteria = cb.createCriteriaDelete(UserInfo.class);
+        Root<UserInfo> root = criteria.getRoot();
+
+        criteria.where(cb.equal(root.get("id"),userInfo.getId()));
+
         session.beginTransaction();
-        query.executeUpdate();
+        session.createMutationQuery(criteria).executeUpdate();
         session.getTransaction().commit();
         session.close();
     }
