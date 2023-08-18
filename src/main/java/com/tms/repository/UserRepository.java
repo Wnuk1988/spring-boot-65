@@ -20,9 +20,16 @@ public class UserRepository {
 
     //READ
     public UserInfo findById(int id) {
+        int firstElement = 0;
+        UserInfo userInfo = null;
         Session session = sessionFactory.openSession();
-        UserInfo userInfo = session.find(UserInfo.class,id);
+        Query<UserInfo> query = session.createQuery("FROM user_info u WHERE u.id =: userId", UserInfo.class);
+        query.setParameter("userId", id);
+        List<UserInfo> resultList = query.getResultList();
         session.close();
+        if (resultList != null && !resultList.isEmpty()){
+            userInfo = resultList.get(firstElement);
+        }
         return userInfo;
     }
 
@@ -37,6 +44,7 @@ public class UserRepository {
 
     // CREATE
     public void save(UserInfo userInfo) {
+        //  не можем сохранить через Query, только если перенести из другой таблицы
         Session session = sessionFactory.openSession();
         session.beginTransaction();
         session.persist(userInfo);
@@ -47,8 +55,16 @@ public class UserRepository {
     //UPDATE
     public void updateUser(UserInfo userInfo) {
         Session session = sessionFactory.openSession();
+        Query<UserInfo> query = session.createQuery("UPDATE user_info set firstName=:firstName, lastName=:lastName," +
+                "updatedAt=:updatedAt, role=:role WHERE id=:id");
+        query.setParameter("id", userInfo.getId());
+        query.setParameter("firstName", userInfo.getFirstName());
+        query.setParameter("lastName", userInfo.getLastName());
+        query.setParameter("updatedAt", userInfo.getUpdatedAt());
+        query.setParameter("role", userInfo.getRole());
+
         session.beginTransaction();
-        session.merge(userInfo);
+        query.executeUpdate();
         session.getTransaction().commit();
         session.close();
     }
@@ -56,8 +72,10 @@ public class UserRepository {
     // DELETE объект передаем
     public void delete(UserInfo userInfo) {
         Session session = sessionFactory.openSession();
+        Query<UserInfo> query = session.createQuery("DELETE user_info WHERE id=:id");
+        query.setParameter("id", userInfo.getId());
         session.beginTransaction();
-        session.remove(userInfo);
+        query.executeUpdate();
         session.getTransaction().commit();
         session.close();
     }
