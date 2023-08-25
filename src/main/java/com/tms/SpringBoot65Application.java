@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @OpenAPIDefinition(
         info = @Info(
@@ -20,6 +21,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         )
 )
 @SpringBootApplication
+@EnableJpaRepositories
 public class SpringBoot65Application {
    // static final Logger log = LogManager.getLogger(SpringBoot65Application.class);
     static final Logger log = LoggerFactory.getLogger(SpringBoot65Application.class);

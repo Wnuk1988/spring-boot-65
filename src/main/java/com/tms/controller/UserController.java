@@ -1,6 +1,8 @@
 package com.tms.controller;
 
+import com.tms.domain.Role;
 import com.tms.domain.UserInfo;
+import com.tms.execption.UserNotFoundException;
 import com.tms.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,8 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -22,10 +27,17 @@ public class UserController {
         this.userService = userService;
     }
 
+    //@PreAuthorize("hasAnyRole('USER')") // кому разрешено на контроллер
     @GetMapping
-    public ResponseEntity<List<UserInfo>> getUsers() {
-        List<UserInfo> users = userService.getUsers();
+    public ResponseEntity<List<UserInfo>> getUsers(Principal principal) {
+        //1. Вариант вывода пользователя, кто в системе:
+//        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+//        System.out.println(userName);
 
+        // 2. Вариант вывода пользователя, кто в системе:
+//        System.out.println(principal.getName());
+
+        List<UserInfo> users = userService.getUsers();
         if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
@@ -33,14 +45,26 @@ public class UserController {
         }
     }
 
+    @GetMapping("/all/{role}")
+    public ResponseEntity<List<UserInfo>> getUsersByRole(@PathVariable String role) {
+        List<UserInfo> users = userService.findAllByRole(Role.valueOf(role));
+        if (users.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        }
+    }
+
+    @GetMapping("/last/{lastName}")
+    public ResponseEntity<UserInfo> getUserByLastName(@PathVariable String lastName) {
+        UserInfo user = userService.findUserByLastName(lastName).orElseThrow(UserNotFoundException::new);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserInfo> getUser(@PathVariable @Parameter(description = "Это id пользователя") Integer id) {
-        UserInfo userInfo = userService.getUser(id);
-        if (userInfo != null) {
-            return new ResponseEntity<>(userInfo, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        UserInfo user = userService.getUser(id).orElseThrow(UserNotFoundException::new);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     //@Hidden - скрывает метод, но не убирает!
@@ -51,36 +75,20 @@ public class UserController {
     })
     @PostMapping
     public ResponseEntity<HttpStatus> createUser(@RequestBody UserInfo userInfo) {
-        UserInfo userInfoSaved = userService.createUser(userInfo);
-        UserInfo userInfoResult = userService.getUser(userInfoSaved.getId());
-        if (userInfoResult != null) {
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+        userService.createUser(userInfo);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @Tag(name = "Test tag", description = "This is our test tag description!")
     @PutMapping
     public ResponseEntity<HttpStatus> updateUser(@RequestBody UserInfo userInfo) {
         userService.updateUser(userInfo);
-        UserInfo userInfoUpdated = userService.getUser(userInfo.getId());
-        if (userInfo.equals(userInfoUpdated)) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable Integer id) {
-        UserInfo userInfoUpdated = userService.getUser(id);
-        userService.deleteUserById(userInfoUpdated);
-        UserInfo userInfo = userService.getUser(id);
-        if (userInfo == null && userInfoUpdated != null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+        userService.deleteUserById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
