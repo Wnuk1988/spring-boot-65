@@ -21,9 +21,9 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public List<UserInfo> findAllByRole(Role role) {
-        return userRepository.findAllByRole(role);
-    }
+//    public List<UserInfo> findAllByRole(Role role) {
+//        return userRepository.findAllByRole(role);
+//    }
     public Optional<UserInfo> findUserByLastName(String fn) {
         return userRepository.findUserByLastName(fn);
     }

@@ -1,10 +1,7 @@
 package com.tms.domain;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
@@ -31,7 +28,4 @@ public class UserInfo {
     private LocalDateTime createdAt;
     @Column(name = "updated")
     private LocalDateTime updatedAt;
-    @Column(name = "user_role")
-    @Enumerated(EnumType.STRING)
-    private Role role;
 }

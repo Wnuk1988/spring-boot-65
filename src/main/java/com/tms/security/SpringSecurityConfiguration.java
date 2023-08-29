@@ -18,6 +18,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 //@EnableMethodSecurity // для анатаций секюрити
 public class SpringSecurityConfiguration {
+
+    private CustomUserDetailService customUserDetailService;
+
+    public SpringSecurityConfiguration(CustomUserDetailService customUserDetailService) {
+        this.customUserDetailService = customUserDetailService;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
@@ -26,6 +33,7 @@ public class SpringSecurityConfiguration {
                         auth
                                 .requestMatchers(HttpMethod.GET,"/user/**").hasAnyRole("ADMIN","USER")
                                 .anyRequest().authenticated())
+                .userDetailsService(customUserDetailService)
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }

@@ -29,7 +29,7 @@ public class UserController {
 
     //@PreAuthorize("hasAnyRole('USER')") // кому разрешено на контроллер
     @GetMapping
-    public ResponseEntity<List<UserInfo>> getUsers(Principal principal) {
+    public ResponseEntity<List<UserInfo>> getUsers() {
         //1. Вариант вывода пользователя, кто в системе:
 //        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
 //        System.out.println(userName);
@@ -45,15 +45,15 @@ public class UserController {
         }
     }
 
-    @GetMapping("/all/{role}")
-    public ResponseEntity<List<UserInfo>> getUsersByRole(@PathVariable String role) {
-        List<UserInfo> users = userService.findAllByRole(Role.valueOf(role));
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        }
-    }
+//    @GetMapping("/all/{role}")
+//    public ResponseEntity<List<UserInfo>> getUsersByRole(@PathVariable String role) {
+//        List<UserInfo> users = userService.findAllByRole(Role.valueOf(role));
+//        if (users.isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        } else {
+//            return new ResponseEntity<>(users, HttpStatus.OK);
+//        }
+//    }
 
     @GetMapping("/last/{lastName}")
     public ResponseEntity<UserInfo> getUserByLastName(@PathVariable String lastName) {
