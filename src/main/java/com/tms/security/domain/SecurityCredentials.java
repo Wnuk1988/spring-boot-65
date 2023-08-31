@@ -1,5 +1,6 @@
-package com.tms.domain;
+package com.tms.security.domain;
 
+import com.tms.domain.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
