@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user")
+@SecurityRequirement(name = "Bearer Authentication")
 public class UserController {
     private final UserService userService;
 
@@ -44,16 +46,6 @@ public class UserController {
             return new ResponseEntity<>(users, HttpStatus.OK);
         }
     }
-
-//    @GetMapping("/all/{role}")
-//    public ResponseEntity<List<UserInfo>> getUsersByRole(@PathVariable String role) {
-//        List<UserInfo> users = userService.findAllByRole(Role.valueOf(role));
-//        if (users.isEmpty()) {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        } else {
-//            return new ResponseEntity<>(users, HttpStatus.OK);
-//        }
-//    }
 
     @GetMapping("/last/{lastName}")
     public ResponseEntity<UserInfo> getUserByLastName(@PathVariable String lastName) {

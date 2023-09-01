@@ -7,9 +7,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 //@Schema(name = "Описание пользователя")
+@Component
 @EqualsAndHashCode(exclude = "updatedAt")
 @Data
 @Entity(name = "user_info")

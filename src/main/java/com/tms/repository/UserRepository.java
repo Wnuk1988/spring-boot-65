@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<UserInfo, Integer> {
 
-    //List<UserInfo> findAllByRole(Role role);
 
     // @Modifying - если мы изменяем Entity(INSERT, DELETE, UPDATE)
     @Query(nativeQuery = true, value = "SELECT * FROM user_info WHERE last_name = :fn")

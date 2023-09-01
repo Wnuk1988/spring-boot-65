@@ -9,7 +9,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
+@Component
 @Entity(name = "security_credentials")
 @Data
 public class SecurityCredentials {
@@ -24,4 +26,6 @@ public class SecurityCredentials {
     @Column(name = "user_role")
     @Enumerated(EnumType.STRING)
     private Role userRole;
+    @Column(name = "user_id")
+    private Integer userId;
 }
