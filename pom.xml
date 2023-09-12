@@ -11,7 +11,7 @@
     <groupId>com.tms</groupId>
     <artifactId>spring-boot-65-final</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>spring-boot-65</name>
     <description>spring-boot-65</description>
     <properties>
