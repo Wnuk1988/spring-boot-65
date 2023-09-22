@@ -17,5 +17,4 @@ class SpringBoot65ApplicationTests {
     void contextLoads() {
         Assertions.assertThat(userController).isNotNull();
     }
-
 }
